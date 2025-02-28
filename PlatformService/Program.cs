@@ -45,17 +45,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PlatformService v1"));
 }
 
-//app.UseHttpsRedirection();
-app.UseRouting();
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
-
-    endpoints.MapGet("/Protos/platform.proto", async context =>
-    {
-        await context.Response.WriteAsync(File.ReadAllText("Protos/platform.proto"));
-    });
 });
 PrepDb.PrepPopulation(app, app.Environment.IsProduction());
 
