@@ -8,11 +8,15 @@ namespace PlatformService.AsyncDataServices
     public class MessageBusClient : IMessageBusClient
     {
         private readonly IConfiguration _configuration;
-        private readonly IConnection _connection;
-        private readonly IModel _channel;
+        private IConnection _connection;
+        private IModel _channel;
         public MessageBusClient(IConfiguration configuration)
         {
             _configuration = configuration;
+            InitializeRabbitMQ();
+        }
+        private void InitializeRabbitMQ()
+        {
             var factory = new ConnectionFactory()
             {
                 HostName = _configuration["RabbitMQHost"],
@@ -24,7 +28,6 @@ namespace PlatformService.AsyncDataServices
                 _channel = _connection.CreateModel();
                 _channel.ExchangeDeclare(exchange: "trigger", type: ExchangeType.Fanout);
                 _connection.ConnectionShutdown += RabbitMQ_ConnectionShutdown;
-
                 Console.WriteLine("--> Connected to MessageBus");
             }
             catch (Exception ex)
@@ -32,7 +35,6 @@ namespace PlatformService.AsyncDataServices
                 Console.WriteLine($"--> Could not connect to the Message Bus: {ex.Message}");
             }
         }
-
         public void PublishNewPlatform(PlatformPublishedDto platformPublishedDto)
         {
             var message = JsonSerializer.Serialize(platformPublishedDto);
